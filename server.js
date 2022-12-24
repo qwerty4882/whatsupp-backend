@@ -19,7 +19,7 @@ app.use(
 const notFoundMiddleware = require('./middleware/notfound')
 const errorHandlerMiddlewarec = require('./middleware/errors')
 const DB_CONNECTION_URL = process.env.API_KEY
-const PORT = 3333
+const PORT = process.env.PORT || 3333
 
 // socket
 const io = require('socket.io')(server, {
