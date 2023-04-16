@@ -2,10 +2,29 @@ const { text } = require('body-parser')
 const Message = require('../Schema/messages')
 const User = require('../Schema/user')
 
+const messageread = async (id) => {
+  const makereadtrue = await Message.findByIdAndUpdate(
+    {
+      _id: id,
+    },
+    {
+      read: true,
+    }
+  )
+}
+
 const messagepost = async (req, res) => {
   const { UserId } = req.user
   const message = await Message.create({ ...req.body, sendBy: UserId })
   res.status(201).json({ message })
+  const user = await User.findOneAndUpdate(
+    { _id: req.body.recievedBy },
+    {
+      $addToSet: {
+        Chats: UserId,
+      },
+    }
+  )
 }
 const messagedeleate = async (req, res) => {
   const message = await Message.deleteOne({ ...req.body })
@@ -22,6 +41,7 @@ const messageget = async (req, res) => {
       { recievedBy: sendBy, sendBy: recievedBy },
     ],
   }).sort({ _id: 1 })
+
   let requiredMessages = messagees.map(({ text, _id, sendBy }) => {
     let sendid = String(sendBy)
     if (sendid === UserId) {
@@ -31,8 +51,26 @@ const messageget = async (req, res) => {
     }
     return { text, _id, host }
   })
-
   res.status(201).json({ requiredMessages })
+  for (let i = 0; i < messagees.length; i++) {
+    let id = messagees[i]._id.toString()
+    messageread(id)
+  }
+}
+
+const messageRead = async (req, res) => {
+  const { UserId } = req.user
+  const message = await Message.findOneAndUpdate(
+    { ...req.body, recievedBy: UserId },
+    {
+      read: true,
+    },
+    {
+      upsert: true,
+      sort: { _id: -1 },
+    }
+  )
+  res.status(201).json({ message })
 }
 
 const addchats = async (req, res) => {
@@ -76,11 +114,23 @@ const givechats = async (req, res) => {
         { recievedBy: Chats[i], sendBy: UserId },
       ],
     }).sort({ _id: -1 })
+    let unreadmessage = 0
+    const messagees = await Message.find({
+      $or: [
+        { sendBy: Chats[i], recievedBy: UserId },
+        { recievedBy: Chats[i], sendBy: UserId },
+      ],
+    }).sort({ _id: 1 })
+    messagees.map((item) => {
+      if (!item.read && item.sendBy == Chats[i]) {
+        unreadmessage++
+      }
+    })
     if (message == null) {
       chats.push({ _id, Name, image, text: '', time: '' })
     } else {
       const { text, time } = message
-      chats.push({ _id, Name, image, text, time })
+      chats.push({ _id, Name, image, text, time, unreadmessage })
     }
   }
 
@@ -94,4 +144,5 @@ module.exports = {
   removechats,
   givechats,
   messagedeleate,
+  messageRead,
 }

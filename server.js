@@ -40,6 +40,7 @@ io.sockets.on('connection', function (socket) {
 // io.sockets.on('sendmsg', (data) => {
 //   console.log(data.msg)
 // })
+
 app.use(express.json())
 
 //routes

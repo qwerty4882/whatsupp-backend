@@ -8,6 +8,7 @@ const {
   removechats,
   givechats,
   messagedeleate,
+  messageRead,
 } = require('../controlers/message')
 
 router.post('/messagepost', messagepost)
@@ -16,4 +17,5 @@ router.patch('/addchats', addchats)
 router.patch('/removechats', removechats)
 router.get('/givechats', givechats)
 router.delete('/messagedeleate', messagedeleate)
+router.patch('/messageRead', messageRead)
 module.exports = router

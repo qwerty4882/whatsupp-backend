@@ -16,6 +16,10 @@ const messagesSchema = new mongoose.Schema({
       return String(formattedTime)
     },
   },
+  read: {
+    type: Boolean,
+    default: false,
+  },
 })
 
 module.exports = mongoose.model('Message', messagesSchema)
