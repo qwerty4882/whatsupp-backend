@@ -24,7 +24,7 @@ const PORT = process.env.PORT || 3333
 // socket
 const io = require('socket.io')(server, {
   cors: {
-    origin: ['http://localhost:3000','https://whatsupp-backend.onrender.com'
+    origin: ['http://localhost:3000','https://whatsapp-clone-project.netlify.app'
 ],
   },
 })
